@@ -1,0 +1,65 @@
+<!-- 
+  the purpose of this is to create a simple way to download and test a model that fits the format that can be uploaded to the ML.
+  I only made a simple model for this, which will simply predict a XOR statement. This is a famous problem, as it requires non-linear
+  activation functions in order to work properly and fit to the model. 
+ -->
+
+<html>
+    <body>
+        <!-- download button, click to download the Tensorflow model -->
+        <button id="download">download</button>
+    </body>
+
+  <head>
+    <!-- Load TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>
+
+
+    <script>
+
+        function download(filename, text) {
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+
+            element.style.display = 'none';
+            document.body.appendChild(element);
+
+            element.click();
+
+            document.body.removeChild(element);
+        }
+
+        window.addEventListener('load', () => {
+            // console.log(document.getElementById('download'))
+            document.getElementById('download').addEventListener("click", (e) => {
+                download("model.txt", JSON.stringify(window.localStorage))
+            })
+        })
+        
+        window.localStorage.clear()
+
+        // Define a model for linear regression.
+        const model = tf.sequential();
+        model.add(tf.layers.dense({units: 2, inputShape: [2]}));
+        model.add(tf.layers.dense({units: 1, activation: 'sigmoid'}));
+
+        // Prepare the model for training: Specify the loss and the optimizer.
+        model.compile({loss: 'meanSquaredError', optimizer: 'sgd'});
+
+        // Generate some synthetic data for training.
+        const xs = tf.tensor2d([[0,0], [0,1], [1,0], [1,1]]);
+        const ys = tf.tensor2d([[1], [0], [0], [1]]);
+
+        // Train the model using the data.
+        model.fit(xs, ys).then(() => {
+        // Use the model to do inference on a data point the model hasn't seen before:
+        // save the model to local storage
+        model.save('localstorage://helloworld');
+      });
+    </script>
+  </head>
+
+  <body>
+  </body>
+</html>

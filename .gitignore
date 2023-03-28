@@ -1,0 +1,4 @@
+node_modules/
+servers/
+config.json
+build
