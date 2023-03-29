@@ -13,7 +13,7 @@ contract ML {
 
     event new_version(string version);
 
-    constructor() public {
+    constructor() {
         owner = msg.sender;
     }
 
@@ -31,6 +31,8 @@ contract ML {
         emit new_version(ver);
     }
 
-    
+    function download(string memory ver) public view returns(string memory network)  {
+        return networks[ver];
+    }
 
 }

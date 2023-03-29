@@ -38,18 +38,17 @@ App = {
             web3.eth.getCoinbase(function(err, account) {
                 if(err === null && account){
                     App.account = account;
-
-
-                    // rendering after log in button
-                    $("#login").hide();
-                    $("#loaded-content").show();
-
+                    // console.log("test")
                     App.contracts.ML.deployed().then(instance => {
+                        console.log("test")
                         instance.owner().then(owner => {
                             App.owner = owner
                             
+                            // rendering after log in button
+                            $("#login").hide();
+                            $("#loaded-content").show();
+
                             App.addVersionListener();
-                            App.populateDropdown();
                             App.populateUpload();
 
                         });
@@ -99,7 +98,9 @@ App = {
     },
 
     populateDropdown: function() {
+
         let dropdown = $('#dropdown').empty()
+
         App.contracts.ML.deployed()
             .then(instance => instance.numVersions().then(
                 n => {
@@ -143,7 +144,7 @@ App = {
                         if(version != "" && description != "" && network && fr.result){
                             App.upload(version, fr.result, description);
                             vup.val('')
-                            vup.val('')
+                            nup.val('')
                             dup.val('')
                         }
                     } 
@@ -168,7 +169,7 @@ App = {
         $("#load-selected").on("click", (event) => {
             let version = $("select#dropdown option:selected").val();
             App.contracts.ML.deployed().then(instance => {
-                instance.networks(version).then(network => {
+                instance.download(version).then(network => {
                     network_info = JSON.parse(network);
                     keys = Object.keys(network_info);
 
