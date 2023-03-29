@@ -33,15 +33,39 @@ App = {
     },
 
     login: function() {
-        web3.eth.getCoinbase(function(err, account) {
-            if(err === null){
-                App.account = account;
-            }
-        })
 
-        App.contracts.ML.deployed().then(instance => {
-            instance.owner().then(owner => App.owner = owner);
-        })
+        try{
+            web3.eth.getCoinbase(function(err, account) {
+                if(err === null && account){
+                    App.account = account;
+
+
+                    // rendering after log in button
+                    $("#login").hide();
+                    $("#loaded-content").show();
+
+                    App.contracts.ML.deployed().then(instance => {
+                        instance.owner().then(owner => {
+                            App.owner = owner
+                            
+                            App.addVersionListener();
+                            App.populateDropdown();
+                            App.populateUpload();
+
+                        });
+                    })                    
+
+                }else{
+                    throw err;
+                }
+            })
+            
+
+        }catch(e){
+            console.log("this is an error: " + e);
+        }
+
+        
     },
 
     upload: function(vers, network, description) {
@@ -50,7 +74,6 @@ App = {
                 return instance.upload(vers, network, description, { from: App.account })
             }) 
     },
-
     
     update_num_versions: function() {
         App.contracts.ML.deployed()
@@ -107,14 +130,21 @@ App = {
                 
                 $("#submit-network").on("click", () => {
 
-                    let version = $("#versionUP").val().trim();
-                    let network = $("#networkUP").prop("files")[0];
-                    let description = $("#descriptionUP").val().trim();
+                    let vup = $("#versionUP");
+                    let nup = $("#networkUP");
+                    let dup = $("#descriptionUP");
+
+                    let version = vup.val().trim();
+                    let network = nup.prop("files")[0];
+                    let description = dup.val().trim();
 
                     let fr = new FileReader();
                     fr.onload = () => {
                         if(version != "" && description != "" && network && fr.result){
                             App.upload(version, fr.result, description);
+                            vup.val('')
+                            vup.val('')
+                            dup.val('')
                         }
                     } 
 
@@ -130,16 +160,9 @@ App = {
         $("#description").append(`<div>${description}</div>`);
     },
 
-    render: function() {
+    initEvents: function() {
         $("#login-button").on("click", (event) => {
             App.login();
-
-            $("#login").hide();
-            $("#loaded-content").show();
-
-            App.addVersionListener();
-            App.populateDropdown();
-            App.populateUpload();
         })
 
         $("#load-selected").on("click", (event) => {
@@ -178,6 +201,6 @@ App = {
 $(function() {
     $(window).load(function() {
         App.init();
-        App.render();
+        App.initEvents();
     });
 });
