@@ -22,7 +22,7 @@ contract ML {
         _;
     }
 
-    function upload(string memory ver, string memory net, string memory des) _ownerOnly public {
+    function upload(string memory ver, string memory net, string memory des) public {
         versions.push(ver);
         networks[ver] = net;
         descriptions[ver] = des;

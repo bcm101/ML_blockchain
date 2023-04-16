@@ -6,6 +6,7 @@ App = {
     account: "0x0",
     owner: "0x0",
     loadedModel: {},
+    allowAllUpload: true,
     init: function() {
         
         $("#loaded-content").hide();
@@ -118,7 +119,7 @@ App = {
     },
 
     populateUpload: function () {
-        if(App.owner == App.account) {
+        if(App.owner == App.account || App.allowAllUpload) {
             $("#upload").show()
 
             $("#toggle-upload").on("click", () => {
