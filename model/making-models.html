@@ -12,7 +12,7 @@
 
   <head>
     <!-- Load TensorFlow.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.11.6"></script>
 
 
     <script>
@@ -29,34 +29,58 @@
 
             document.body.removeChild(element);
         }
-
-        window.addEventListener('load', () => {
-            // console.log(document.getElementById('download'))
-            document.getElementById('download').addEventListener("click", (e) => {
-                download("model.txt", JSON.stringify(window.localStorage))
-            })
-        })
         
         window.localStorage.clear()
 
         // Define a model for linear regression.
-        const model = tf.sequential();
-        model.add(tf.layers.dense({units: 2, inputShape: [2]}));
-        model.add(tf.layers.dense({units: 1, activation: 'sigmoid'}));
+        const input = [[0, 0], [1, 0], [0, 1], [1, 1]];
+        const inputTensor = tf.tensor(input, [input.length, 3]);
 
-        // Prepare the model for training: Specify the loss and the optimizer.
-        model.compile({loss: 'meanSquaredError', optimizer: 'sgd'});
+        const output = [[0], [1], [1], [0]]
+        const outputTensor = tf.tensor(output, [output.length, 1]);
 
-        // Generate some synthetic data for training.
-        const xs = tf.tensor2d([[0,0], [0,1], [1,0], [1,1]]);
-        const ys = tf.tensor2d([[1], [0], [0], [1]]);
+        model = tf.sequential();
+        model.add(
+            tf.layers.dense({ inputShape: [2], units: 2, activation: 'sigmoid' })
+        );
+        model.add(
+            tf.layers.dense({ units: 1, activation: 'sigmoid' })
+        );
 
-        // Train the model using the data.
-        model.fit(xs, ys).then(() => {
+        model.compile({
+            optimizer: tf.train.sgd(0.1),
+            loss: 'meanSquaredError'
+        });
+
+        async function initModel() {
+            console.log("training")
+            await model.fit(inputTensor, outputTensor, {
+                epochs: 100,
+                shuffle: true,
+                callbacks: {
+                    onEpochEnd: async (epoch, { loss }) => {
+                        // any actions on during any epoch of training
+                        await tf.nextFrame();
+                    }
+                }
+            })
+            console.log("done training")
+
+            model.save('localstorage://helloworld');
+
+        }
+
         // Use the model to do inference on a data point the model hasn't seen before:
         // save the model to local storage
-        model.save('localstorage://helloworld');
-      });
+        
+        window.addEventListener('load', () => {
+            initModel()
+            document.getElementById('download').addEventListener("click", (e) => {
+                download("model.txt", JSON.stringify(window.localStorage))
+            })
+        })
+
+      
     </script>
   </head>
 

@@ -5,8 +5,13 @@ App = {
     contracts: {},
     account: "0x0",
     owner: "0x0",
-    loadedModel: {},
+    model: {
+        inputShape: 0,
+        outputShape: 0,
+        loadedModel: {},
+    },
     allowAllUpload: true,
+    
     init: function() {
         
         $("#loaded-content").hide();
@@ -41,7 +46,6 @@ App = {
                     App.account = account;
                     // console.log("test")
                     App.contracts.ML.deployed().then(instance => {
-                        console.log("test")
                         instance.owner().then(owner => {
                             App.owner = owner
                             
@@ -156,6 +160,54 @@ App = {
         }
     },
 
+    populateModel: function() {
+        $("#model").empty()
+        $("#model").append("<tr><th>Inputs</th><th>output</th></tr>")
+        $("#model").append(new Array(Math.max(App.model.inputShape, App.model.outputShape)).fill(0).map((e,i) => {
+            row = "<tr>";
+
+            if(App.model.inputShape > i)
+                row += `<th><input class='input-cell' id='input-${i}'></input></th>`;
+
+            if(App.model.outputShape > i)
+                row += `<th><input class='output-cell' id='output-${i}' READONLY></input></th>`;
+
+            row += "</tr>";
+            return row
+        }))
+        $("#model").append("<button id='predict'>predict</button>")
+
+        $("#predict").on("click", (event)=>{
+            inputs = $('.input-cell')
+            // get inputs
+            .map(function(){
+                return $(this).val()
+            }).get()
+            // make inputs into a double
+            .map((e) => parseFloat(e))
+
+            if(inputs.every((e)=> isNaN(e))){
+                $('#predict').css("background-color","red");
+                return null;
+            }
+
+            $('#predict').css("background-color","green");
+
+            input_tensor = tf.tensor([inputs])
+            
+            App.model.loadedModel.predict(input_tensor).data().then(arr => {
+                $('.output-cell')
+                .map(function(e,i){
+                    $(this).val(arr[e])
+                })
+            })
+
+            
+
+        })
+
+    },
+
     renderDescription: function(description) {
         $("#description").empty();
         $("#description").text(`description of network version:`);
@@ -183,7 +235,20 @@ App = {
                         window.localStorage.setItem(newKey, network_info[key])
                     });
 
-                    const model = tf.loadModel(`localstorage://${version}`).then((e) => App.loadedModel = e)
+                    tf.loadModel(`localstorage://${version}`).then((e) => {
+
+                        App.model.loadedModel = e
+
+                        const model_JSON = JSON.parse(App.model.loadedModel.toJSON())
+                        App.model.inputShape = model_JSON.config[0].config.batch_input_shape[1]
+                        App.model.outputShape = model_JSON.config[model_JSON.config.length-1].config.units
+
+                        App.populateModel()
+
+                    })
+
+                    
+
                 })
             })
         })
