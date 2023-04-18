@@ -118,7 +118,8 @@ Firstly, we must log into the metamask we created earlier on the new computer. N
 Next we need to run another website, either as another port on the first computer or in the new computer. Either way, you should run the command in the project directory:
 
 ```bash
-npm run dev```
+npm run dev
+```
 
 On the browser of the new computer, enter the URL to the now running website. If you ran the command on the first computer, navigate to: ```http://[yourIPAddress]:3002```. If you ran the command on the new computer, navigate to ```[yourNewIPAddress]:3002``` where ```[yourNewIPAddress]``` represents the IP address of the new computer. 
 
