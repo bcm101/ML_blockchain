@@ -1,29 +1,45 @@
 <html>
-<body id="content">
-    <div id="version-details">
-        <div id="num_versions"></div>
-        <div id="latest_version"></div>
-    </div>
-    <div id="login">
-        <button id="login-button" type="button">login</button>
-    </div>
-    <div id="upload">
-        <button id="toggle-upload">upload</button>
-        <div id="uploadables"></div>
-    </div>
-    <div id="loaded-content">
-        <select id="dropdown"></select>
-        <button type="button" id="load-selected">load selected</button>
-        <div id="description"></div>
-    </div>
-    <table id="model"></table>
-</body>
+    
+    <body>
+        <div id="content">
+            <div id="header">
+                Made by Professor Xu and Brandon Wetzel
+                <img src="./images/logo2.png" ></img>
+                <img src="./images/logo.png" ></img>
+            </div>
+            <div id="login">
+                Please Login with Metamask before accessing this website
+                <button id="login-button" type="button">login</button>
+            </div>
+            <div id="version-details">
+                <div id="num_versions"></div>
+                <div id="latest_version"></div>
+            </div>
+            <div id="upload">
+                Upload a new model: 
+                <button id="toggle-upload">upload</button>
+                <div id="uploadables"></div>
+            </div>
+            <div id="loaded-content">
+                <div>
+                    load a model: 
+                </div>
+                <select id="dropdown"></select>
+                <button type="button" id="load-selected">load selected</button>
+                <div id="description"></div>
+                <canvas id="rating" width="400" height="100"></canvas>
+            </div>
+        </div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.11.6"></script>
+        <table id="model"></table>
+    </body>
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.11.6"></script>
+    <link rel="stylesheet" href="./style/style.css">
 
-<script src="js/web3.min.js"></script>
-<script src="js/truffle-contract.js"></script>
-<script src="js/app.js"></script>
+    <script src="js/web3.min.js"></script>
+    <script src="js/truffle-contract.js"></script>
+    <script src="js/app.js"></script>
+
 </html>

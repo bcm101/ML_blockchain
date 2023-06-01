@@ -1,4 +1,5 @@
-// const $ = require('jquery')
+let drawStars;
+import('./drawStars.js').then((ds) => drawStars = ds.drawStars);
 
 App = {
     web3Provider: null,
@@ -9,13 +10,15 @@ App = {
         inputShape: 0,
         outputShape: 0,
         loadedModel: {},
+        version: ""
     },
     allowAllUpload: true,
-    
+    instance: {},
+
     init: function() {
         
         $("#loaded-content").hide();
-        $("#upload").hide()
+        $("#upload").hide();
 
         // initializing web3
         if(typeof web3 !== "undefined"){
@@ -31,8 +34,8 @@ App = {
 
         
         // // initializing contract
-        $.getJSON("ML.json", function(ML){
-            App.contracts.ML = TruffleContract(ML);
+        $.getJSON("MLManager.json", function(MLManager){
+            App.contracts.ML = TruffleContract(MLManager);
             App.contracts.ML.setProvider(App.web3Provider);
         })
 
@@ -44,20 +47,24 @@ App = {
             web3.eth.getCoinbase(function(err, account) {
                 if(err === null && account){
                     App.account = account;
-                    // console.log("test")
                     App.contracts.ML.deployed().then(instance => {
                         instance.owner().then(owner => {
                             App.owner = owner
                             
                             // rendering after log in button
                             $("#login").hide();
-                            $("#loaded-content").show();
 
-                            App.addVersionListener();
+                            instance.numVersions().then(v => {
+                                if(v > 0)
+                                    instance.versions(v-1).then(version => {
+                                        App.updateVersions(version);
+                                    })
+                            })
+
                             App.populateUpload();
-
+                            App.instance = instance;
                         });
-                    })                    
+                    })
 
                 }else{
                     throw err;
@@ -86,19 +93,21 @@ App = {
         )
     },
 
-    addVersionListener: function() {
-        App.contracts.ML.deployed().then(instance => {
-            instance.new_version(
-                {},
-                {
-                    fromBlock: "latest",
-                    toBlock: "latest"
-                }
-            ).watch( (err, event) => {
-                App.update_num_versions();
-                App.populateDropdown();
-                $('#latest_version').text("latest: " + event.args.version);
-            })
+    updateVersions: function(version) {
+        App.update_num_versions();
+        App.populateDropdown();
+        App.updateRating(version);
+        $('#loaded-content').show();
+        $('#latest_version').text("latest: " + version);
+    },
+
+    updateRating: function(version){
+        App.instance.getNumRatings(version).then(ratings => {
+            if(ratings > 0){
+                App.instance.getAverage(version).then(rating => {
+                    App.populateRating(rating.toNumber() / 1000);
+                })
+            }
         })
     },
 
@@ -114,7 +123,7 @@ App = {
                             dropdown.append(`<option>${v.toString()}</option>`);
 
                             if(i == n.toNumber() - 1)
-                                instance.descriptions(v).then(desc => App.renderDescription(desc));
+                                instance.getDescription(v).then(desc => App.renderDescription(desc));
                         })
                     }
                 }
@@ -162,7 +171,7 @@ App = {
 
     populateModel: function() {
         $("#model").empty()
-        $("#model").append("<tr><th>Inputs</th><th>output</th></tr>")
+        $("#model").append("<tr><th>Inputs</th><th>Outputs</th></tr>")
         $("#model").append(new Array(Math.max(App.model.inputShape, App.model.outputShape)).fill(0).map((e,i) => {
             row = "<tr>";
 
@@ -173,45 +182,67 @@ App = {
                 row += `<th><input class='output-cell' id='output-${i}' READONLY></input></th>`;
 
             row += "</tr>";
-            return row
+            return row;
         }))
-        $("#model").append("<button id='predict'>predict</button>")
+        $("#model").append(`predict with model: <button id='predict'>predict</button>`);
+        $("#model").append(`<div><div>review the model: <input id="review-input" placeholder="int" style="width: 25px"></input></div><button id='review'>submit</button></div>`);
 
         $("#predict").on("click", (event)=>{
             inputs = $('.input-cell')
             // get inputs
             .map(function(){
-                return $(this).val()
+                return $(this).val();
             }).get()
             // make inputs into a double
-            .map((e) => parseFloat(e))
+            .map((e) => parseFloat(e));
+            
 
-            if(inputs.every((e)=> isNaN(e))){
-                $('#predict').css("background-color","red");
-                return null;
-            }
-
-            $('#predict').css("background-color","green");
-
-            input_tensor = tf.tensor([inputs])
+            input_tensor = tf.tensor([inputs]);
             
             App.model.loadedModel.predict(input_tensor).data().then(arr => {
                 $('.output-cell')
                 .map(function(e,i){
-                    $(this).val(arr[e])
+                    if(!isNaN(arr[e])){
+                        $(this).val(arr[e]);
+                        $('#predict').css("background-color","green");
+                    }else{
+                        $(this).val("error");
+                        $('#predict').css("background-color","red");
+                    }
+                    
                 })
             })
-
-            
-
         })
 
+        $('#review').on("click", (event) => {
+            let v = parseInt($("#review-input").val());
+            if(!isNaN(v)){
+                App.submitReview(App.model.version, v);
+                $('#review').css("background-color","green");
+            }else{
+                $('#review').css("background-color","red");
+            }
+        })
+
+    },
+
+    submitReview: function(version, review) {
+        App.contracts.ML.deployed().then(instance => {
+            instance.addRating(version, review, { from: App.account });
+        })
     },
 
     renderDescription: function(description) {
         $("#description").empty();
         $("#description").text(`description of network version:`);
         $("#description").append(`<div>${description}</div>`);
+    },
+
+    populateRating: function(rating) {
+        let canvas = document.getElementById("rating");
+        let ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawStars(ctx, 0, 40, 20, 5, 4, 5, rating)
     },
 
     initEvents: function() {
@@ -237,17 +268,16 @@ App = {
 
                     tf.loadModel(`localstorage://${version}`).then((e) => {
 
-                        App.model.loadedModel = e
+                        App.model.loadedModel = e;
 
-                        const model_JSON = JSON.parse(App.model.loadedModel.toJSON())
-                        App.model.inputShape = model_JSON.config[0].config.batch_input_shape[1]
-                        App.model.outputShape = model_JSON.config[model_JSON.config.length-1].config.units
+                        const model_JSON = JSON.parse(App.model.loadedModel.toJSON());
+                        App.model.inputShape = model_JSON.config[0].config.batch_input_shape[1];
+                        App.model.outputShape = model_JSON.config[model_JSON.config.length-1].config.units;
+                        App.model.version = version;
 
-                        App.populateModel()
+                        App.populateModel();
 
                     })
-
-                    
 
                 })
             })
@@ -256,9 +286,10 @@ App = {
         $("#dropdown").on("change", (event) => {
             let version = $("select#dropdown option:selected").val();
             App.contracts.ML.deployed().then(instance => {
-                instance.descriptions(version).then(description => {
+                instance.getDescription(version).then(description => {
                     App.renderDescription(description);
                 })
+                App.updateRating(version);
             })
         })
     }

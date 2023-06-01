@@ -1,0 +1,24 @@
+#header {
+    position: relative;
+    background-color: #003764;
+    height: 8%;
+    top:0;
+    font-size: 20px;
+    color: white;
+}
+
+#header img {
+    position: relative;
+    height: 100%;
+    margin: 0;
+    float: right;
+}
+
+body {
+    margin:0;
+}
+
+#model {
+    position: absolute;
+    left: 35%
+}

@@ -2,37 +2,37 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 contract ML {
+    address public uploader;
 
-    address public owner;
+    string public network;
+    string public description;
+    string public version;
 
-    mapping(string => string) public networks;
-    mapping(string => string) public descriptions;
+    uint256[] public ratings;
+    uint256 public numRatings;
+    uint256 public average;
 
-    string[] public versions; 
-    uint256 public numVersions;
+    uint256 public highestRating;
 
-    event new_version(string version);
+    constructor (string memory ver, string memory net, string memory des, address sender) {
+        network = net;
+        version = ver;
+        description = des;
 
-    constructor() {
-        owner = msg.sender;
+        uploader = sender;
+
+        highestRating = 5;
+
     }
 
-    modifier _ownerOnly() {
-        require(msg.sender == owner, "not owner");
-        _;
-    }
+    function addRating(uint rating) public {
+        require (rating <= highestRating && rating >= 1, "rating not in range");
 
-    function upload(string memory ver, string memory net, string memory des) public {
-        versions.push(ver);
-        networks[ver] = net;
-        descriptions[ver] = des;
-        numVersions += 1;
-
-        emit new_version(ver);
-    }
-
-    function download(string memory ver) public view returns(string memory network)  {
-        return networks[ver];
+        ratings.push(rating * 1000);
+        
+        average = (average * numRatings + rating * 1000) / (numRatings + 1);
+        numRatings++;
     }
 
 }
+
