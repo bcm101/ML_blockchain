@@ -1,0 +1,1 @@
+"{\"weight_data\":\"cJ7+vqO39D79jHW/WJYyPpe0tj6iHF6+5NtrPSs0ET+9d6K+Gv7Avcf/zD1Irfg+206lvriwTD9I//Y+1mUEP5LupT3gwwc/lOi6vmmKSz9Ivj6/hRlwPfFdDT5Yg12+IiN7Pcda3LoLXLk8wbnCvMxA4jyO7Tg9+DZYPvESTr4Gq5k/IWY4Pol5gj5oTv88jifrPj5kET6bfX4/8Q8BQPP/oj9yX4s/\",\"layers\":[5,128,128,2],\"inputNames\":[\"age\",\"year made\",\"miles driven\",\"number of crashes\",\"visible dents/scratches\"]}"
