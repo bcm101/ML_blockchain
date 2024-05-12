@@ -8,11 +8,7 @@ contract ML {
     string public description;
     string public version;
 
-    uint256[] public ratings;
-    uint256 public numRatings;
-    uint256 public average;
 
-    uint256 public highestRating;
 
     constructor (string memory ver, string memory net, string memory des, address sender) {
         network = net;
@@ -21,17 +17,10 @@ contract ML {
 
         uploader = sender;
 
-        highestRating = 5;
-
     }
 
-    function addRating(uint rating) public {
-        require (rating <= highestRating && rating >= 1, "rating not in range");
-
-        ratings.push(rating * 1000);
-        
-        average = (average * numRatings + rating * 1000) / (numRatings + 1);
-        numRatings++;
+    function getInfo() public view returns(string memory, string memory, address){
+        return (version, description, uploader);
     }
 
 }

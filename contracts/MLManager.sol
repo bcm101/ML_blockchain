@@ -2,16 +2,20 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 import './ML.sol';
+import './Rating.sol';
+
 
 contract MLManager {
 
     address public owner;
 
     mapping(string => ML) public MLs;
+    mapping(uint256 => Rating) public Ratings;
     mapping(string => uint256) private indexByVersion;
 
     string[] public versions;
     uint256 public numVersions = 0;
+    uint256 public numRatings = 0;
 
     event new_version(string version);
 
@@ -48,20 +52,19 @@ contract MLManager {
         return MLs[ver].description();
     }
 
-    function getAverage(string memory ver) public view returns(uint256){
-        return MLs[ver].average();
-    }
-
-    function addRating(string memory ver, uint256 rating) public{
-        MLs[ver].addRating(rating);
-    }
-
-    function getNumRatings(string memory ver) public view returns(uint256) {
-        return MLs[ver].numRatings();
+    function addRating(string memory ver, uint256 _numRatings, uint256 rating, uint256 averageRating) public{
+        
+        bytes32 ID = keccak256(abi.encode(MLs[ver], msg.sender));
+        Ratings[numRatings] = new Rating(ver, ID, _numRatings, rating, averageRating);
+        numRatings++;
     }
     
     function getOwnerOfAddress(string memory ver) public view returns(address) {
         return MLs[ver].uploader();
+    }
+
+    function getContractAddress(bytes1 nonce) public view returns(address){
+        return address(uint160(uint256(keccak256(abi.encodePacked(bytes1(0xd6), bytes1(0x94), address(this), (nonce))))));
     }
 
 }

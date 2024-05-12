@@ -30,21 +30,49 @@
             document.body.removeChild(element);
         }
         
+        function getRandomInt(max, min = 0) {
+            return Math.floor(Math.random() * max + min);
+        }
+
         window.localStorage.clear()
 
-        // Define a model for linear regression.
-        const input = [[0, 0], [1, 0], [0, 1], [1, 1]];
-        const inputTensor = tf.tensor(input, [input.length, 3]);
+        const layers = [5, 128, 128, 2];
+        let MODEL;
 
-        const output = [[0], [1], [1], [0]]
-        const outputTensor = tf.tensor(output, [output.length, 1]);
+        let numInputs = layers[0];
+        let numOutputs = layers[layers.length - 1];
+        let numLayers = layers.length - 2;
 
-        model = tf.sequential();
+
+        let input1 = new Array(numInputs).fill(0).map(e => getRandomInt(5,1));
+        let input2 = new Array(numInputs).fill(0).map(e => getRandomInt(5,1));
+        let input3 = new Array(numInputs).fill(0).map(e => getRandomInt(5,1));
+        let input4 = new Array(numInputs).fill(0).map(e => getRandomInt(5,1));
+
+        let output1 = new Array(numOutputs).fill(0).map(e => getRandomInt(5,1));
+        let output2= new Array(numOutputs).fill(0).map(e => getRandomInt(5,1));
+        let output3 = new Array(numOutputs).fill(0).map(e => getRandomInt(5,1));
+        let output4 = new Array(numOutputs).fill(0).map(e => getRandomInt(5,1));
+
+        const input = [input1, input2, input3, input4];
+        const inputTensor = tf.tensor(input, [input.length, input[0].length]);
+
+        const output = [output1, output2, output3, output4];
+        const outputTensor = tf.tensor(output, [output.length, output[0].length]);
+
+        let model = tf.sequential();
         model.add(
-            tf.layers.dense({ inputShape: [2], units: 2, activation: 'sigmoid' })
+            tf.layers.dense({ inputShape: [input[0].length], units: input[0].length, activation: 'sigmoid' })
         );
+
+        for(let i = 1; i < numLayers - 1; i++){
+            model.add(
+                tf.layers.dense({units: layers[i], activation: 'sigmoid'})
+            )
+        }
+
         model.add(
-            tf.layers.dense({ units: 1, activation: 'sigmoid' })
+            tf.layers.dense({ units: output[0].length, activation: 'sigmoid' })
         );
 
         model.compile({
@@ -52,31 +80,38 @@
             loss: 'meanSquaredError'
         });
 
-        async function initModel() {
-            console.log("training")
-            await model.fit(inputTensor, outputTensor, {
-                epochs: 100,
-                shuffle: true,
-                callbacks: {
-                    onEpochEnd: async (epoch, { loss }) => {
-                        // any actions on during any epoch of training
-                        await tf.nextFrame();
+        const epochs = 50;
+        const modelName = 'helloWorld';
+        model.fit(inputTensor, outputTensor, {
+            epochs: epochs,
+            shuffle: true,
+            callbacks: {
+                onEpochEnd: async (epoch, { _loss }) => {
+                    // console.log('epochs left: ', epochs - epoch);
+                    if(epoch == epochs - 1){
+                        model.save(`localstorage://${modelName}`).then(() => {
+                            window.localStorage.setItem(
+                                `tensorflowjs_models/${modelName}/inputNames`, 
+                                new Array(numInputs).fill(0).map(() => "testing")
+                            )
+
+                            let modelJSON = {};
+                            modelJSON.weight_data = window.localStorage.getItem(`tensorflowjs_models/${modelName}/weight_data`);
+                            modelJSON.layers = layers;
+                            modelJSON.inputNames = ["age", "year made", "miles driven", "number of crashes", "visible dents/scratches"];
+
+                            model = JSON.stringify(modelJSON);
+                        });
                     }
                 }
-            })
-            console.log("done training")
-
-            model.save('localstorage://helloworld');
-
-        }
-
+            }
+        })
         // Use the model to do inference on a data point the model hasn't seen before:
         // save the model to local storage
         
         window.addEventListener('load', () => {
-            initModel()
             document.getElementById('download').addEventListener("click", (e) => {
-                download("model.txt", JSON.stringify(window.localStorage))
+                download("model.txt", JSON.stringify(model))
             })
         })
 

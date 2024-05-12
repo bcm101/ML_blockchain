@@ -2,40 +2,92 @@
     
     <body>
         <div id="content">
+            <div id="title">
+                Public Storage of NN Models on Blockchain
+            </div>
             <div id="header">
-                Made by Professor Xu and Brandon Wetzel
-                <img src="./images/logo2.png" ></img>
-                <img src="./images/logo.png" ></img>
-            </div>
-            <div id="login">
-                Please Login with Metamask before accessing this website
-                <button id="login-button" type="button">login</button>
-            </div>
-            <div id="version-details">
-                <div id="num_versions"></div>
-                <div id="latest_version"></div>
-            </div>
-            <div id="upload">
-                Upload a new model: 
-                <button id="toggle-upload">upload</button>
-                <div id="uploadables"></div>
-            </div>
-            <div id="loaded-content">
-                <div>
-                    load a model: 
+                <div id="intro">
+                    <img src="./images/logo.png"></img>
                 </div>
-                <select id="dropdown"></select>
-                <button type="button" id="load-selected">load selected</button>
-                <div id="description"></div>
-                <canvas id="rating" width="400" height="100"></canvas>
+                <div id="tabs">
+                    <button class="tablinks">M e t a - B l o c k</button>
+                    <button class="tablinks">U p l o a d</button>
+                    <button class="tablinks">D o w n l o a d</button>
+                </div>
+            </div>
+            <table id="tabcontentblock">
+                <tr>
+                    <th id="info-container">
+                        <table id="info" class="info-table">
+                            <tr class="info-table"><th class="info-table info-table-title">Info</th></tr>
+                            <tr class="info-table">
+                                <th class="info-table">current block scanned: </th><th id="last-block" style="color: red">NONE</th>
+                            </tr>
+                            <tr class="info-table">
+                                <th class="info-table">model num of ratings: </th><th id="num-of-ratings">0</th>
+                            </tr>
+                            <tr class="info-table">
+                                <th class="info-table">current average rating: </th><th id="average-rating"></th>
+                            </tr>
+                        </table>
+                    </th>
+                    <th class="tabcontent-container">
+                        <div class="tab1 tabcontent">
+                            <div>Generate Meta-Block: <button id="generate-meta-block">generate</button></div>
+                            <div>Download Meta-Block: <button id="download-meta-block">download</button></div>
+                            <div>Load Meta-Block: <button id="submit-meta-block">submit</button><input id='load-meta-block' type='file' accept='.txt, .json, .bin'></input></div>
+                        </div>
+                    </th>
+                    <th class="tabcontent-container">
+                        <div class="tab2 tabcontent">
+                            <div id="upload">
+                                <div id="uploadables">
+                                    <div>Submit Model: <button id='submit-network' type='button'>submit</button></div>
+                                    <input id='versionUP' placeholder='version'></input>
+                                    <input id='descriptionUP' placeholder='description'></input>
+                                    <div>Upload Network File: <input id='networkUP' type='file' accept='.txt, .json, .bin'></input></div>
+                                </div>
+                            </div>
+                        </div>
+                    </th>
+                    <th class="tabcontent-container">
+                        <div class="tab3 tabcontent">
+                            <div id="loaded-content">
+                                <div id="version-details">
+                                    <div id="num_versions"></div>
+                                    <div id="latest_version"></div>
+                                </div>
+                                <div>
+                                    Load a Model: 
+                                </div>
+                                <select id="dropdown"></select>
+                                <button type="button" id="load-selected">load selected</button>
+                                <div id="description"></div>
+                            </div>
+                        </div>
+                    </th>
+                </tr>
+            </table>
+
+        </div>
+        <table id="model"></table>
+        <div id="rating">
+            <div id="num-of-ratings-text">
+                
+            </div>
+            <div>
+                <canvas id="rating-canvas" width="500" height="200"></canvas>
             </div>
         </div>
-
-        <table id="model"></table>
+        
+        
+        
     </body>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.11.6"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    <script src="https://unpkg.com/@metamask/legacy-web3@2.0.0/dist/metamask.web3.min.js"></script>
     <link rel="stylesheet" href="./style/style.css">
 
     <script src="js/web3.min.js"></script>

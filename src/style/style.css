@@ -1,17 +1,18 @@
 #header {
     position: relative;
-    background-color: #003764;
-    height: 8%;
+    background-color: #f1f1f1;
+    height: 10%;
     top:0;
     font-size: 20px;
     color: white;
 }
 
-#header img {
+#header #intro img {
     position: relative;
     height: 100%;
     margin: 0;
-    float: right;
+    float: left;
+    width: 33%;
 }
 
 body {
@@ -20,5 +21,95 @@ body {
 
 #model {
     position: absolute;
-    left: 35%
+    /* left: 40%; */
+    top: 50%;
+    width: 50%;
+    border-collapse:collapse;
+}
+
+.input-cell, .output-cell {
+    width: 100%;
+} 
+
+#tabs {
+    overflow: hidden;
+    border: 1px solid white;
+    background-color: white;
+}
+
+#title {
+    width: 100%;
+    background-color: #1c3763;
+    height: 10%;
+    color: #eec357;
+    text-align: center;
+    font-size: 50px;
+    font-family: monospace;
+}
+
+#tabs button{
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    width: 33%;
+    height: 100%;
+    transition: .3s;
+    font-size: 20px;
+    font-family: fantasy;
+}
+
+.tabcontent {
+    /* width: 33%; */
+    /* float: left; */
+    text-align: center;
+    /* visibility: hidden; */
+}
+
+/* .tab1, .tab2, .tab4 {
+    visibility: hidden;
+} */
+
+#rating {
+    position: fixed;
+    left: 60%;
+    top: 60%;
+}
+
+#tabs button:hover {
+    /* background-color: #caea4a7c; */
+    color: rgb(223, 206, 13);
+}
+
+#tabs button:active {
+    /* background-color: #88ea37b0; */
+    color: rgb(30, 45, 119);
+}
+
+#tabcontentblock {
+    /* padding-left: 33%; */
+    padding-top: 2%;
+}
+
+#info {
+    border: 1px solid black;
+    width: 70%;
+}
+
+#info tr th {
+    border-bottom: 1px solid black;
+    width: 100%;
+}
+
+#info tr .info-table-title {
+    font-size: large;
+}
+
+#info-container {
+    width: 33%;
+}
+
+.tabcontent-container {
+    width: 22%;
 }

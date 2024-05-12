@@ -65,7 +65,7 @@ module.exports = {
     // options below to some value.
     //
     development: {
-     host: "192.168.86.45",     // Your IP Address goes here!
+     host: "127.0.0.1",     // Your IP Address goes here!
      port: 8545,            // Standard Ethereum port
      network_id: "*",       // Any network
     },
